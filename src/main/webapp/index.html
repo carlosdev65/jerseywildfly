@@ -1,0 +1,178 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+table.blueTable {
+  border: 1px solid #11532b;
+  background-color: #EEEEEE;
+  width: 50%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.blueTable td, table.blueTable th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+table.blueTable tbody td {
+  font-size: 13px;
+}
+table.blueTable tr:nth-child(even) {
+  background: #d6f5d0;
+}
+table.blueTable thead {
+  background: #1ca41c;
+  background: -moz-linear-gradient(top, #55bb66 0%, #32ad3c 66%, #27a41c 100%);
+  background: -webkit-linear-gradient(top, #55bb55 0%, #32ad38 66%, #1ca42e 100%);
+  background: linear-gradient(to bottom, #55bb63 0%, #3cad32 66%, rgb(28, 164, 28) 100%);
+  border-bottom: 2px solid #444444;
+}
+table.blueTable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #dbf5d0;
+}
+table.blueTable thead th:first-child {
+  border-left: none;
+}
+table.blueTable tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: #D0E4F5;
+  background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  border-top: 2px solid #444444;
+}
+table.blueTable tfoot td {
+  font-size: 14px;
+}
+table.blueTable tfoot .links {
+  text-align: right;
+}
+table.blueTable tfoot .links a{
+  display: inline-block;
+  background: #1ca423;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+</style>
+</head>
+<body>
+<h3>Demonstração Palestra no WildFly</h3>
+<div id="app">
+
+    <table class="blueTable">
+        <thead >
+        <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Apagar</th>
+            <th>Atualizar</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="user in users" :key="user.id">
+            <td>{{user.id}}</td>
+            <td>{{user.nome}}</td>
+            <td>{{user.email}}</td>
+            <td>  <button class="button"  @click="deleteUser(user.id)">Apagar</button></td>
+            <td>  <button class="button"  @click="updateUser(user.id)">Atualizar</button></td>
+        </tr>
+        </tbody>
+    </table>
+    <br/>
+    <h3>Adicionar / Atualizar Usuário</h3>
+    <div>
+        <form name="form" >
+            <input type="text" placeholder="Nome" v-model="nome" size="60"/><br/>
+            <input type="text" placeholder="Email" v-model="email" size="60"/><br/>
+            <input type="submit" value="Salvar" @click="createUser"/><br/>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+<script>
+
+
+new Vue({
+    el: "#app",
+    data() {
+        return {
+            users: []
+        }
+    },
+    methods: {
+
+
+        updateUser: function(id) {
+
+                axios.put("http://localhost:8080/demo-wildfly/rest/user?id="+id+"&nome="+this.nome+"&email="+this.email)
+                .then(response => {
+                    this.listUsers()
+                })
+                this.nome='';
+                this.email='';
+        },
+
+        deleteUser: function(id) {
+
+                axios.delete("http://localhost:8080/demo-wildfly/rest/user?id="+id)
+                .then(response => {
+                    this.listUsers()
+                })
+        },
+
+        createUser: function() {
+
+          var user = {
+                // name and surname should exist in [data] or [computed] section
+                nome: this.nome,
+                email: this.email
+              };
+
+
+            axios.post("http://localhost:8080/demo-wildfly/rest/user",  user)
+                .then(response => {
+                    this.listUsers()
+                })
+
+
+        },
+        listUsers: function() {
+            axios.get("/demo-wildfly/rest/user", {
+
+                })
+                .then(response => {
+                    this.users = response.data
+                })
+        }
+    },
+    mounted: function() {
+
+       this.listUsers()
+    }
+
+
+})
+
+
+
+</script>
+
+
+<div>
+
+</div>
+
+</body>
+</html>
